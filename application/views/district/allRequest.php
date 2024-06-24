@@ -212,11 +212,9 @@
                             var blockDetails = requests.find(r => r.block_id === blockId);
                             var blockName = blockDetails.block_name;
                             var skilledJawans = JSON.parse(blockDetails.skilled_jawans);
-                            var approvalStatus = blockDetails.approval === "0" ? "Pending"
-                                : blockDetails.approval === "2" ? "Allocated"
-                                    : "Approved";
+                            var approvalStatus = blockDetails.approval === "0" ? "Pending" : "Allocated";
 
-                            if (approvalStatus !== "Approved") allApproved = false;
+                           
                             if (approvalStatus !== "Allocated") allAllocated = false;
 
                             modalContent += `<li><strong>${blockName}</strong>: <span class="badge bg-secondary">${totalJawans}</span> Jawans required - <span class="badge ${approvalStatus === "Allocated" ? "bg-success" : approvalStatus === "Approved" ? "bg-info text-white" : "bg-secondary"
@@ -240,9 +238,6 @@
                             $('#detailsModal .modal-footer').append('<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>');
                             $('#detailsModal .modal-footer').append('<button type="button" class="btn btn-danger" onclick="rejectOrder(' + id + ')">Reject</button>');
 
-                            if (allApproved && requests[0].status !== 'OrderIdGenerated') {
-                                $('#detailsModal .modal-footer').append('<button type="button" class="btn btn-primary" onclick="generateOrderId(' + id + ')">Generate Order ID</button>');
-                            }
 
                             if (allAllocated) {
                                 if (requests[0].status === 'Completed') {

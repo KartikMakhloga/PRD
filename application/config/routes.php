@@ -109,6 +109,7 @@ $route['district/rejectOrder/(:num)'] = 'district/rejectOrder/$1';
 
 $route['block/jawanDetails'] = 'block/jawanDetails';
 $route['block/getJawansByBlocks/(:num)'] = 'block/getJawansByBlocks/$1';
+$route['block/getAvailableJawansByBlocks/(:num)'] = 'block/getAvailableJawansByBlocks/$1';
 $route['block/allocateJawanToDepartment'] = 'block/allocateJawanToDepartment';
 $route['block/deallocateJawanFromDepartment'] = 'block/deallocateJawanFromDepartment';
 // $route['block/getRequestByBlockId'] = 'block/getRequestByBlockId';
@@ -116,6 +117,7 @@ $route['requests'] = 'block/requests';
 $route['block/requestDetailsBlockwise'] = 'block/requestDetailsBlockwise';
 $route['block/getRequestDetails/(:num)'] = 'block/getRequestDetails/$1';
 $route['block/approveRequest'] = 'block/approveRequest';
+$route['block/allocateAllJawansToDepartment'] = 'block/allocateAllJawansToDepartment';
 
 
 $route['admin/getJawansByBlock/(:num)'] = 'admin/getJawansByBlock/$1';

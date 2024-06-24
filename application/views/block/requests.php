@@ -155,6 +155,30 @@
 <!--end::Modal-->
 
 
+<!-- Modal for showing details -->
+<div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detailsModalLabel">Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="modalContent">
+                <!-- Content will be loaded here dynamically -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <!-- Allocate button will be appended here dynamically -->
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
 
 <script src="<?= base_url() ?>assets/plugins/global/plugins.bundle.js"></script>
 
@@ -198,16 +222,16 @@
                         break;
                 }
 
-                var detailsHtml = `
-            <p><strong>Demand Number: </strong><span class="badge bg-secondary">${data.demand_number}</span> </p>
-            <p><strong>Department Name: </strong> <span class="badge bg-secondary">${data.department_name || 'Not specified'}</span></p>
-            <p><strong>Order ID: </strong><span class="badge bg-secondary">${data.order_id || 'N/A'}</span> </p>
-            <p><strong>Status: </strong> ${statusBadge}</p>
-            <p><strong>Final Status: </strong> ${finalStatusBadge}</p>
-            <p><strong>From Date: </strong> ${data.from_date}</p>
-            <p><strong>To Date: </strong> ${data.to_date}</p>
-            <p><strong>Total Jawans Requested from your block: </strong> <span class="badge bg-secondary">${jawansForBlock}</span></p>
-            <p><strong>Skilled Jawans: </strong><ul>`;
+                var detailsHtml =
+                    `<p><strong>Demand Number: </strong><span class="badge bg-secondary">${data.demand_number}</span> </p>
+                <p><strong>Department Name: </strong> <span class="badge bg-secondary">${data.department_name || 'Not specified'}</span></p>
+                <p><strong>Order ID: </strong><span class="badge bg-secondary">${data.order_id || 'N/A'}</span> </p>
+                <p><strong>Status: </strong> ${statusBadge}</p>
+                <p><strong>Final Status: </strong> ${finalStatusBadge}</p>
+                <p><strong>From Date: </strong> ${data.from_date}</p>
+                <p><strong>To Date: </strong> ${data.to_date}</p>
+                <p><strong>Total Jawans Requested from your block: </strong> <span class="badge bg-secondary">${jawansForBlock}</span></p>
+                <p><strong>Skilled Jawans: </strong><ul>`;
 
                 for (var key in skilledJawans) {
                     if (skilledJawans.hasOwnProperty(key) && skilledJawans[key]) {
@@ -220,6 +244,7 @@
                 $('#detailsModal').modal('show');
                 // Clear previous buttons, if any
                 $('#allocateButton').remove();
+                $('#allocateSelectedJawans').remove();
 
                 // Add the allocate buttons dynamically based on approval status
                 var footerHtml = '';
@@ -234,7 +259,7 @@
                 }
 
                 $('#allocateButton').on('click', function () {
-                    allocateRequest(requestId, block_id);
+                    showJawansModal(data.department_id, data.from_date, data.to_date, requestId);
                 });
             },
             error: function (error) {
@@ -243,58 +268,96 @@
         });
     }
 
-    // function approveRequest(requestId, block_id) {
-    //     var baseUrl = "<?php echo base_url(); ?>";
-
-    //     $.ajax({
-    //         url: baseUrl + 'block/approveRequest',
-    //         type: 'PUT',
-    //         data: JSON.stringify({ request_id: requestId, block_id: block_id }),
-    //         contentType: 'application/json',
-    //         dataType: 'json',
-    //         success: function (response) {
-    //             if (response.status === 'success') {
-    //                 alert(response.message);
-    //                 // Optionally reload the modal content to reflect the approval
-    //                 showDetailsModal(requestId);
-    //             } else {
-    //                 alert(response.message);
-    //             }
-    //         },
-    //         error: function (error) {
-    //             console.log('Error approving request:', error);
-    //             alert('Error approving request');
-    //         }
-    //     });
-    // }
-
-    function allocateRequest(requestId, block_id) {
+    function showJawansModal(department_id, from_date, to_date, requestId) {
         var baseUrl = "<?php echo base_url(); ?>";
-
+        var blockId = "<?php echo $this->session->userdata('user_id'); ?>";
         $.ajax({
-            url: baseUrl + 'block/allocateRequest',
-            type: 'PUT',
-            data: JSON.stringify({ request_id: requestId, block_id: block_id }),
-            contentType: 'application/json',
+            url: baseUrl + 'block/getAvailableJawansByBlocks/' + blockId,
+            type: 'GET',
+            success: function (response) {
+                var jawans = response.data;
+                var jawanDetailsHtml = '<div class="container">';
+                jawanDetailsHtml += '<div class="row">';
+                jawanDetailsHtml += '<div class="col-md-12">';
+                jawanDetailsHtml += '<h5 class="text-dark font-weight-bold mt-2 mb-2">Available Jawans</h5>';
+                jawanDetailsHtml += `<span class="text-dark-50 font-weight-bold">${jawans.length} Total Jawans</span>`;
+                jawanDetailsHtml += '<table class="table table-striped">';
+                jawanDetailsHtml += '<thead><tr><th>Select</th><th>Name</th><th>Availability</th><th>Father Name</th><th>Skill</th><th>Residence Address</th><th>Height</th><th>Weight</th></tr></thead>';
+                jawanDetailsHtml += '<tbody>';
+                jawans.forEach(jawan => {
+                    jawanDetailsHtml += `<tr>
+                    <td><input type="checkbox" class="jawan-checkbox" value="${jawan.id}"></td>
+                    <td>${jawan.name}</td>
+                    <td>${jawan.availability == 0 ? "Available" : "Unavailable"}</td>
+                    <td>${jawan.father_name}</td>
+                    <td>${jawan.skills}</td>
+                    <td>${jawan.residential_address}</td>
+                    <td>${jawan.height}</td>
+                    <td>${jawan.weight}</td>
+                </tr>`;
+                });
+                jawanDetailsHtml += '</tbody></table>';
+                jawanDetailsHtml += '</div></div></div>';
+
+                // Add Allocate button
+                var allocateAllJawans = '<button class="btn btn-primary ml-2" id="allocateSelectedJawans">Allocate Selected Jawans</button>';
+
+
+                $('#allocateButton').remove();
+                $('.modal-footer').append(allocateAllJawans);
+
+
+                $('#modalContent').html(jawanDetailsHtml);
+                // remove allocate button from modal
+                $('#detailsModal').modal('show');
+
+                // Allocate button click handler
+                $('#allocateSelectedJawans').on('click', function () {
+                    var selectedJawans = [];
+                    $('.jawan-checkbox:checked').each(function () {
+                        selectedJawans.push($(this).val());
+                    });
+                    var departmentId = department_id;
+                    if (selectedJawans.length > 0 && departmentId && from_date) {
+                        allocateJawansToDepartment(selectedJawans, departmentId, from_date, to_date, requestId);
+                    } else {
+                        alert('Please select jawans.');
+                    }
+                });
+            },
+            error: function (error) {
+                console.log('Error fetching jawans:', error);
+            }
+        });
+    }
+
+    function allocateJawansToDepartment(jawanIds, departmentId, from_date, to_date, requestId) {
+        var baseUrl = "<?php echo base_url(); ?>";
+        $.ajax({
+            url: baseUrl + 'block/allocateAllJawansToDepartment',
+            type: 'POST',
             dataType: 'json',
+            data: {
+                jawan_ids: jawanIds,
+                department_id: departmentId,
+                from: from_date,
+                to: to_date,
+                requestId: requestId
+            },
             success: function (response) {
                 if (response.status === 'success') {
                     alert(response.message);
-                    // Optionally reload the modal content to reflect the allocation
-                    showDetailsModal(requestId);
+                    $('#detailsModal').modal('hide');
                 } else {
                     alert(response.message);
                 }
             },
             error: function (error) {
-                console.log('Error allocating request:', error);
-                alert('Error allocating request');
+                console.log(error);
+                alert('Failed to process your request');
             }
         });
     }
-
-
-
 
 
     var KTAppsUsersListDatatable = function () {

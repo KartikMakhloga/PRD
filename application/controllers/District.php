@@ -410,33 +410,33 @@ class District extends CI_Controller
         }
     }
 
-    public function generateOrderId($id)
-    {
-        $this->checkLogin();
-        if ($this->session->userdata('role_name') != 'district') {
-            echo json_encode(['status' => 'error', 'message' => 'Unauthorized access']);
-            return;
-        }
+    // public function generateOrderId($id)
+    // {
+    //     $this->checkLogin();
+    //     if ($this->session->userdata('role_name') != 'district') {
+    //         echo json_encode(['status' => 'error', 'message' => 'Unauthorized access']);
+    //         return;
+    //     }
 
-        $order_id = substr($this->session->userdata('name'), 0, 3) . rand(1000000, 9999999);
+    //     $order_id = substr($this->session->userdata('name'), 0, 3) . rand(1000000, 9999999);
 
-        $result = $this->RequestModel->SaveOrderId($id, $order_id);
-        if ($result) {
-            if ($this->input->is_ajax_request()) {
-                echo json_encode(['status' => 'success', 'message' => 'Order ID generated successfully', 'order_id' => $order_id]);
-            } else {
-                $this->session->set_flashdata('success', 'Order ID generated successfully!');
-                redirect($_SERVER['HTTP_REFERER']);
-            }
-        } else {
-            if ($this->input->is_ajax_request()) {
-                echo json_encode(['status' => 'error', 'message' => 'Failed to generate order ID']);
-            } else {
-                $this->session->set_flashdata('error', 'Failed to generate order ID.');
-                redirect($_SERVER['HTTP_REFERER']);
-            }
-        }
-    }
+    //     $result = $this->RequestModel->SaveOrderId($id, $order_id);
+    //     if ($result) {
+    //         if ($this->input->is_ajax_request()) {
+    //             echo json_encode(['status' => 'success', 'message' => 'Order ID generated successfully', 'order_id' => $order_id]);
+    //         } else {
+    //             $this->session->set_flashdata('success', 'Order ID generated successfully!');
+    //             redirect($_SERVER['HTTP_REFERER']);
+    //         }
+    //     } else {
+    //         if ($this->input->is_ajax_request()) {
+    //             echo json_encode(['status' => 'error', 'message' => 'Failed to generate order ID']);
+    //         } else {
+    //             $this->session->set_flashdata('error', 'Failed to generate order ID.');
+    //             redirect($_SERVER['HTTP_REFERER']);
+    //         }
+    //     }
+    // }
 
 
     public function completeOrder($id)
@@ -447,7 +447,9 @@ class District extends CI_Controller
             return;
         }
 
-        $result = $this->RequestModel->updateOrderStatus($id, 'Completed');
+        $order_id = substr($this->session->userdata('name'), 0, 3) . rand(1000000, 9999999);
+
+        $result = $this->RequestModel->updateOrderStatus($id, 'Completed', $order_id);
         if ($result) {
             echo json_encode(['success' => true]);
         } else {

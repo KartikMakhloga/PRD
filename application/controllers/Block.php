@@ -50,6 +50,19 @@ class Block extends CI_Controller
         echo json_encode(['data' => $jawans]);
     }
 
+    public function getAvailableJawansByBlocks($blockId)
+    {
+        if ($this->session->userdata('role_name') != 'block') {
+            redirect(base_url(), 'refresh');
+        }
+
+        $this->load->model('JawanModel');
+        $jawans = $this->JawanModel->getAvailableJawansByBlockId($blockId);
+
+        header("Content-Type: application/json");
+        echo json_encode(['data' => $jawans]);
+    }
+
 
     public function jawanDetails()
     {
@@ -163,63 +176,101 @@ class Block extends CI_Controller
             echo json_encode(['status' => 'error', 'message' => 'Unauthorized access']);
             return;
         }
-    
+
         // Read and decode raw input data
         $rawData = file_get_contents('php://input');
-    
+
         $data = json_decode($rawData, true);
         $requestId = isset($data['request_id']) ? $data['request_id'] : null;
         $blockId = isset($data['block_id']) ? $data['block_id'] : null;
-    
+
         if (empty($requestId) || empty($blockId)) {
             echo json_encode(['status' => 'error', 'message' => 'Invalid request ID or block ID']);
             return;
         }
-    
+
         $this->load->model('RequestModel'); // Ensure the model is loaded
-    
+
         $result = $this->RequestModel->approveRequest($requestId, $blockId);
-    
+
         if ($result) {
             echo json_encode(['status' => 'success', 'message' => 'Request approved successfully.']);
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Request approval failed.']);
         }
     }
-    
+
 
     public function allocateRequest()
-{
-    $this->checkLogin();
-    if ($this->session->userdata('role_name') != 'block') {
-        echo json_encode(['status' => 'error', 'message' => 'Unauthorized access']);
-        return;
+    {
+        $this->checkLogin();
+        if ($this->session->userdata('role_name') != 'block') {
+            echo json_encode(['status' => 'error', 'message' => 'Unauthorized access']);
+            return;
+        }
+
+        // Read and decode raw input data
+        $rawData = file_get_contents('php://input');
+        $data = json_decode($rawData, true);
+        $requestId = isset($data['request_id']) ? $data['request_id'] : null;
+        $blockId = isset($data['block_id']) ? $data['block_id'] : null;
+
+        if (empty($requestId) || empty($blockId)) {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request ID or block ID']);
+            return;
+        }
+
+        $this->load->model('RequestModel'); // Ensure the model is loaded
+
+        $result = $this->RequestModel->allocateRequest($requestId, $blockId);
+
+        if ($result) {
+            echo json_encode(['status' => 'success', 'message' => 'Request allocated successfully.']);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Request allocation failed.']);
+        }
     }
 
-    // Read and decode raw input data
-    $rawData = file_get_contents('php://input');
-    $data = json_decode($rawData, true);
-    $requestId = isset($data['request_id']) ? $data['request_id'] : null;
-    $blockId = isset($data['block_id']) ? $data['block_id'] : null;
 
-    if (empty($requestId) || empty($blockId)) {
-        echo json_encode(['status' => 'error', 'message' => 'Invalid request ID or block ID']);
-        return;
-    }
+    public function allocateAllJawansToDepartment() {
+        // Load necessary libraries and helpers
+        $this->load->library('form_validation');
+    
+        // Set validation rules
+        $this->form_validation->set_rules('jawan_ids[]', 'Jawans', 'required');
+        $this->form_validation->set_rules('department_id', 'Department', 'required');
+        $this->form_validation->set_rules('from', 'From Date', 'required');
+        $this->form_validation->set_rules('to', 'To Date', 'required');
+    
+        if ($this->form_validation->run() == FALSE) {
+            // Validation failed
+            $response = array('status' => 'error', 'message' => validation_errors());
+            echo json_encode($response);
+            return;
+        }
+    
+        // Retrieve POST data
+        $jawan_ids = $this->input->post('jawan_ids');
+        $department_id = $this->input->post('department_id');
+        $from_date = $this->input->post('from');
+        $to_date = $this->input->post('to');
+        $requestId = $this->input->post('requestId');
+        $blockId = $this->session->userdata('user_id');
 
-    $this->load->model('RequestModel'); // Ensure the model is loaded
-
-    $result = $this->RequestModel->allocateRequest($requestId, $blockId);
-
-    if ($result) {
-        echo json_encode(['status' => 'success', 'message' => 'Request allocated successfully.']);
-    } else {
-        echo json_encode(['status' => 'error', 'message' => 'Request allocation failed.']);
-    }
-}
 
     
-
+        // Allocate jawans
+        $result = $this->JawanModel->allocateJawans($jawan_ids, $department_id, $from_date, $to_date, $requestId, $blockId);
+    
+        if ($result) {
+            $response = array('status' => 'success', 'message' => 'Jawans allocated successfully.');
+        } else {
+            $response = array('status' => 'error', 'message' => 'Failed to allocate jawans.');
+        }
+    
+        echo json_encode($response);
+    }
+    
 
 
 

@@ -338,10 +338,10 @@ class RequestModel extends CI_Model
         return false;
     }
 
-    public function updateOrderStatus($id, $status)
+    public function updateOrderStatus($id, $status, $orderId)
     {
         $this->db->where('id', $id);
-        return $this->db->update('requests', ['status' => $status]);
+        return $this->db->update('requests', ['status' => $status, 'order_id' => $orderId]);
     }
 
 
