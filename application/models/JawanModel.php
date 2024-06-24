@@ -66,9 +66,84 @@ class JawanModel extends CI_Model
         $this->db->from('jawan');
         $this->db->join('block', 'block.id = jawan.block_id');
         $this->db->where('block.district_id', $districtId);
+        $this->db->order_by('jawan.name', 'asc');
         $query = $this->db->get();
         return $query->result();
     }
 
+    public function getAvailableJawanByBlockId($blockId)
+    {
+        $this->db->select('jawan.*, block.name as block_name');
+        $this->db->from('jawan');
+        $this->db->join('block', 'block.id = jawan.block_id');
+        $this->db->where('block.id', $blockId);
+        $this->db->where('jawan.availability', 0);
+        $this->db->order_by('jawan.name', 'asc');
+        $query = $this->db->get();
+        return $query->result();
+
+    }
+
+    public function allocateJawanToDepartment($jawanId, $departmentId)
+    {
+        if ($this->getJawanById($jawanId)->department_id == null) {
+            $this->db->where('id', $jawanId);
+            $this->db->update('jawan', ['department_id' => $departmentId]);
+            $this->db->where('id', $jawanId);
+            $this->db->update('jawan', ['availability' => 1]);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public function deallocateJawanToDepartment($jawanId)
+    {
+        if ($this->getJawanById($jawanId)->department_id != null) {
+            $this->db->where('id', $jawanId);
+            $this->db->update('jawan', ['department_id' => null]);
+            $this->db->where('id', $jawanId);
+            $this->db->update('jawan', ['availability' => 0]);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public function getFilteredJawansByBlockId($blockId, $availability = null, $training = null, $department = null, $generalSearch = null)
+    {
+        $this->db->from('jawan');
+        $this->db->where('block_id', $blockId);
+
+        if ($availability !== null && $availability !== '') {
+            $this->db->where('availability', $availability);
+        }
+
+        if ($training !== null && $training !== '') {
+            if ($training === 'untrained') {
+                $this->db->where('training', 'none');
+            } else if ($training === 'trained') {
+                $this->db->where('training !=', 'none');
+            }
+        }
+
+        if ($department !== null && $department !== '') {
+
+            $this->db->where('department_id', $department);
+
+        }
+
+        if ($generalSearch) {
+            $this->db->group_start();
+            $this->db->like('name', $generalSearch);
+            $this->db->or_like('father_name', $generalSearch);
+            $this->db->or_like('residential_address', $generalSearch);
+            $this->db->or_like('permanent_address', $generalSearch);
+            $this->db->group_end();
+        }
+
+        $query = $this->db->get();
+        return $query->result();
+    }
 
 }

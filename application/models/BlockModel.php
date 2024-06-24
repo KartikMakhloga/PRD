@@ -61,6 +61,21 @@ class BlockModel extends CI_Model
         $query = $this->db->get_where('block', ['district_id' => $district_id]);
         return $query->result();
     }
+
+    public function getBlocksByDistrictId($district_id)
+    {
+        $this->db->order_by('name', 'ASC');
+        $query = $this->db->get_where('block', ['district_id' => $district_id]);
+        return $query->result();
+    }
+
+    public function getAllBlockNames() {
+        $this->db->select('id, name');
+        $this->db->from('block');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    
     
    
 }

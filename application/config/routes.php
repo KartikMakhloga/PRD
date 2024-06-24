@@ -91,9 +91,35 @@ $route['updateJawan/(:num)'] = 'admin/updateJawan/$1';
 $route['district/jawanDetails'] = 'district/jawanDetails';
 $route['district/getJawansByBlock/(:num)'] = 'district/getJawansByBlock/$1';
 $route['district/getJawansByDistrict/(:num)'] = 'district/getJawansByDistrict/$1';
+$route['district/BlockJawans/(:num)'] = 'district/BlockJawans/$1';
+$route['district/requestJawans'] = 'district/requestJawans';
+$route['district/allRequest'] = 'district/allRequest';
+$route['district/addDepartment'] = 'district/addDepartment';
+$route['district/registerDepartment'] = 'district/registerDepartment';
+$route['district/registerRequest'] = 'district/registerRequest';
+$route['getBlockByDistrictId/(:num)'] = 'admin/getBlockByDistrictId/$1';
+$route['district/getRequestByDistrictId'] = 'district/getRequestByDistrictId';
+$route['district/getRequestById/(:num)'] = 'district/getRequestById/$1';
+$route['district/editRequest/(:num)'] = 'district/editRequest/$1';
+$route['district/updateRequest/(:num)'] = 'district/updateRequest/$1';
+$route['district/generateOrderId/(:num)'] = 'district/generateOrderId/$1';
+$route['district/completeOrder/(:num)'] = 'district/completeOrder/$1';
+$route['district/rejectOrder/(:num)'] = 'district/rejectOrder/$1';
+
 
 $route['block/jawanDetails'] = 'block/jawanDetails';
 $route['block/getJawansByBlocks/(:num)'] = 'block/getJawansByBlocks/$1';
+$route['block/allocateJawanToDepartment'] = 'block/allocateJawanToDepartment';
+$route['block/deallocateJawanFromDepartment'] = 'block/deallocateJawanFromDepartment';
+// $route['block/getRequestByBlockId'] = 'block/getRequestByBlockId';
+$route['requests'] = 'block/requests';
+$route['block/requestDetailsBlockwise'] = 'block/requestDetailsBlockwise';
+$route['block/getRequestDetails/(:num)'] = 'block/getRequestDetails/$1';
+$route['block/approveRequest'] = 'block/approveRequest';
+
+
+$route['admin/getJawansByBlock/(:num)'] = 'admin/getJawansByBlock/$1';
+$route['admin/getJawansByDistrict/(:num)'] = 'admin/getJawansByDistrict/$1';
 
 
 

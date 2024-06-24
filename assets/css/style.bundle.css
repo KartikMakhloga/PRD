@@ -65904,6 +65904,7 @@ code {
   color: #7E8299;
 }
 .datatable.datatable-default > .datatable-pager > .datatable-pager-info {
+  display: none !important;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -65958,6 +65959,7 @@ code {
 }
 .modal .datatable.datatable-default > .datatable-pager > .datatable-pager-info .datatable-pager-size .dropdown-menu {
   z-index: 1051;
+  display: none;
 }
 .datatable.datatable-default .ps > .ps__rail-y > .ps__thumb-y,
 .datatable.datatable-default .ps > .ps__rail-x > .ps__thumb-x {

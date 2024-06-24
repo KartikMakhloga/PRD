@@ -6,7 +6,7 @@
             <!--begin::Details-->
             <div class="d-flex align-items-center flex-wrap mr-2">
                 <!--begin::Title-->
-                <h5 class="text-dark font-weight-bold mt-2 mb-2 mr-5">Users</h5>
+                <h5 class="text-dark font-weight-bold mt-2 mb-2 mr-5">Jawans</h5>
                 <!--end::Title-->
                 <!--begin::Separator-->
                 <div class="subheader-separator subheader-separator-ver mt-2 mb-2 mr-5 bg-gray-200"></div>
@@ -14,7 +14,10 @@
                 <!--begin::Search Form-->
                 <div class="d-flex align-items-center" id="kt_subheader_search">
                     <span class="text-dark-50 font-weight-bold" id="kt_subheader_total"><?= count($jawans) ?>
-                        Total</span>
+                        Total Jawans</span>
+                    <span class="font-weight-bold ml-5" id="kt_subheader_total"
+                        style="color:springgreen;"><?= count($availableJawanCount) ?>
+                        Available Jawans</span>
                     <form class="ml-5">
                         <div class="input-group input-group-sm input-group-solid" style="max-width: 175px">
                             <input type="text" class="form-control" id="kt_subheader_search_form"
@@ -43,6 +46,27 @@
                             </div>
                         </div>
                     </form>
+                    <div class="d-flex align-items-center ml-2">
+                        <select class="form-control form-control-sm" id="kt_datatable_search_availability">
+                            <option value="" selected disabled>Select Availability</option>
+                            <option value="">All</option>
+                            <option value="0">Available</option>
+                            <option value="1">Non-Available</option>
+                        </select>
+
+                        <select class="form-control form-control-sm ml-2" id="kt_datatable_search_training">
+                            <option value="" selected disabled>Select Training</option>
+                            <option value="">All</option>
+                            <option value="trained">Trained</option>
+                            <option value="untrained">Untrained</option>
+                        </select>
+                        <select class="form-control form-control-sm ml-2" id="kt_datatable_search_department">
+                            <option value="">All Departments</option>
+                            <?php foreach ($departments as $department) { ?>
+                                <option value="<?= $department->id ?>"><?= $department->name ?></option>
+                            <?php } ?>
+                        </select>
+                    </div>
                 </div>
                 <!--end::Search Form-->
                 <!--begin::Group Actions-->
@@ -130,7 +154,7 @@
                 <div class="card-header flex-wrap border-0 pt-6 pb-0">
                     <div class="card-title">
                         <h3 class="card-label">Jawan Management
-                            <span class="d-block text-muted pt-2 font-size-sm">User management made easy</span>
+                            <!-- <span class="d-block text-muted pt-2 font-size-sm">User management made easy</span> -->
                         </h3>
                     </div>
 
@@ -140,19 +164,9 @@
                 <div class="card-body">
                     <!--begin: Datatable-->
                     <div class="datatable datatable-bordered datatable-head-custom" id="kt_datatable">
-                        <?php if ($this->session->flashdata('success')) { ?>
-                            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                <?= $this->session->flashdata('success') ?>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        <?php } ?>
+                        <!-- Flash Messages Container -->
+                        <div id="flash-messages"></div>
 
-                        <?php if ($this->session->flashdata('error')) { ?>
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                <?= $this->session->flashdata('error') ?>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        <?php } ?>
                     </div>
                     <!--end: Datatable-->
                 </div>
@@ -172,19 +186,9 @@
 </div>
 <!--end::Main-->
 
-<!--end::Demo Panel-->
-<script>var HOST_URL = "https://preview.keenthemes.com/metronic/theme/html/tools/preview";</script>
-<!--begin::Global Config(global config for global JS scripts)-->
-<script>var KTAppSettings = { "breakpoints": { "sm": 576, "md": 768, "lg": 992, "xl": 1200, "xxl": 1400 }, "colors": { "theme": { "base": { "white": "#ffffff", "primary": "#3699FF", "secondary": "#E5EAEE", "success": "#1BC5BD", "info": "#8950FC", "warning": "#FFA800", "danger": "#F64E60", "light": "#E4E6EF", "dark": "#181C32" }, "light": { "white": "#ffffff", "primary": "#E1F0FF", "secondary": "#EBEDF3", "success": "#C9F7F5", "info": "#EEE5FF", "warning": "#FFF4DE", "danger": "#FFE2E5", "light": "#F3F6F9", "dark": "#D6D6E0" }, "inverse": { "white": "#ffffff", "primary": "#ffffff", "secondary": "#3F4254", "success": "#ffffff", "info": "#ffffff", "warning": "#ffffff", "danger": "#ffffff", "light": "#464E5F", "dark": "#ffffff" } }, "gray": { "gray-100": "#F3F6F9", "gray-200": "#EBEDF3", "gray-300": "#E4E6EF", "gray-400": "#D1D3E0", "gray-500": "#B5B5C3", "gray-600": "#7E8299", "gray-700": "#5E6278", "gray-800": "#3F4254", "gray-900": "#181C32" } }, "font-family": "Poppins" };</script>
-<!--end::Global Config-->
-<!--begin::Global Theme Bundle(used by all pages)-->
+
 <script src="<?= base_url() ?>assets/plugins/global/plugins.bundle.js"></script>
-<script src="<?= base_url() ?>assets/plugins/custom/prismjs/prismjs.bundle.js"></script>
-<script src="<?= base_url() ?>assets/js/scripts.bundle.js"></script>
-<script src="https://keenthemes.com/metronic/<?= base_url() ?>assets/js/engage_code.js"></script>
-<!--end::Global Theme Bundle-->
-<!--begin::Page Scripts(used by this page)-->
-<!-- <script src="<?= base_url() ?>assets/js/pages/custom/user/list-datatable.js"></script> -->
+
 <script>
     "use strict";
     // Class definition
@@ -204,7 +208,7 @@
                             method: 'GET',
                         },
                     },
-                    pageSize: 5, // display 5 records per page
+                    pageSize: 10, // display 10 records per page
                     serverPaging: true,
                     serverFiltering: true,
                     serverSorting: true,
@@ -233,14 +237,36 @@
                         field: 'id',
                         title: '#',
                         sortable: 'asc',
-                        width: 60,
+                        width: 50,
                         type: 'number',
                         selector: false,
                         textAlign: 'left',
                     },
                     {
-                        field: 'block_name',
-                        title: 'Block'
+                        field: 'availability',
+                        title: 'Availability',
+                        width: 100,
+                        template: function (row) {
+                            var status = {
+                                0: {
+                                    'title': 'Available',
+                                    'class': ' label-light-success'
+                                },
+                                1: {
+                                    'title': 'Unavailable',
+                                    'class': ' label-light-danger'
+                                },
+                                2: {
+                                    'title': 'Pending',
+                                    'class': ' label-light-primary'
+                                },
+                                3: {
+                                    'title': 'On Hold',
+                                    'class': ' label-light-info'
+                                },
+                            };
+                            return '<span class="label font-weight-bold label-lg' + status[row.availability].class + ' label-inline">' + status[row.availability].title + '</span>';
+                        },
                     },
                     {
                         field: 'name',
@@ -259,12 +285,32 @@
                         title: 'Permanent Address',
                     },
                     {
-                        field: 'village',
-                        title: 'Village',
+                        width: 100,
+                        field: 'height',
+                        title: 'Height',
                     },
                     {
-                        field: 'vitals',
-                        title: 'Vital',
+                        field: 'weight',
+                        title: 'Weight',
+                    },
+                    {
+                        field: "Actions",
+                        title: "Actions",
+                        sortable: false,
+                        autoHide: false,
+                        textAlign: 'left',
+                        template: function (row) {
+                            var select = '<select class="form-select form-select-sm department_id" style="width:100px; margin-bottom:5px"  name="department_id">';
+                            select += '<option value="" disabled selected>Deparment</option>';
+                            <?php foreach ($departments as $department) { ?>
+                                select += '<option value="<?= $department->id ?>"><?= $department->name ?></option>';
+                            <?php } ?>
+                            select += '</select>';
+                            var allocateButton = '<button type="button" class="btn btn-primary btn-sm" onclick="allocateJawanToDepartment(this, ' + row.id + ')" style="width:100px">Allocate</button>';
+
+                            var deallocateButton = '<button type="button" class="btn btn-danger btn-sm mt-1" onclick="deallocateJawanFromDepartment(' + row.id + ')" style="width:100px">Deallocate</button>';
+                            return select + allocateButton + deallocateButton;
+                        },
                     },
                     {
                         field: "birth_mark",
@@ -289,6 +335,10 @@
                     {
                         field: "training",
                         title: "Training",
+                    },
+                    {
+                        field: 'blood_group',
+                        title: 'Blood Group',
                     },
                     {
                         field: "skills",
@@ -316,13 +366,98 @@
                 ],
             });
 
-            $('#kt_datatable_search_status').on('change', function () {
-                datatable.search($(this).val().toLowerCase(), 'Status');
+
+            // allocate Jawan To Department
+            window.allocateJawanToDepartment = function (button, jawanId) {
+                var departmentId = $(button).closest('tr').find('.department_id').val();
+                $.ajax({
+                    url: baseUrl + 'block/allocateJawanToDepartment',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        jawan_id: jawanId,
+                        department_id: departmentId,
+                    },
+                    success: function (response) {
+                        if (response.status === 'success') {
+                            showFlashMessage(response.message); // Showing success message
+                            datatable.reload();
+                        } else {
+                            showFlashMessage(response.message, 'warning'); // Showing error message
+                        }
+                    },
+                    error: function (error) {
+                        console.log(error);
+                        showFlashMessage('Failed to process your request', 'danger');
+                    }
+                });
+            }
+
+
+
+            // deallocate Jawan From Department
+            window.deallocateJawanFromDepartment = function (jawanId) {
+                if (confirm('Are you sure you want to deallocate this Jawan?')) {
+                    $.ajax({
+                        url: baseUrl + 'block/deallocateJawanFromDepartment',
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {
+                            jawan_id: jawanId,
+                        },
+                        success: function (response) {
+                            if (response.status === 'success') {
+                                showFlashMessage(response.message, 'success');
+                            } else {
+                                showFlashMessage(response.message, 'warning');
+                            }
+                            datatable.reload();
+                        },
+                        error: function (error) {
+                            console.log(error);
+                            showFlashMessage('Failed to process your request', 'danger');
+                        }
+                    });
+                }
+            }
+
+
+            // Function to show and automatically dismiss flash messages
+            function showFlashMessage(message, type = 'success') {
+                var messageHtml = '<div class="alert alert-' + type + ' alert-dismissible fade show" role="alert">' +
+                    message +
+                    '</div>';
+                $('#flash-messages').html(messageHtml);
+                setTimeout(function () {
+                    $('.alert').alert('close');
+                }, 2000);
+            }
+
+
+            // Handle search event
+            $('#kt_subheader_search_form').on('keyup', function () {
+                datatable.setDataSourceParam('generalSearch', $(this).val());
+                datatable.load();
             });
 
-            $('#kt_datatable_search_type').on('change', function () {
-                datatable.search($(this).val().toLowerCase(), 'Type');
+            // Handle availability filter event
+            $('#kt_datatable_search_availability').on('change', function () {
+                datatable.setDataSourceParam('availability', $(this).val());
+                datatable.load();
             });
+
+            // Handle training filter event
+            $('#kt_datatable_search_training').on('change', function () {
+                datatable.setDataSourceParam('training', $(this).val());
+                datatable.load();
+            });
+
+            // Handle department filter event
+            $('#kt_datatable_search_department').on('change', function () {
+                datatable.setDataSourceParam('department', $(this).val());
+                datatable.load();
+            });
+
 
             $('#kt_datatable_search_status, #kt_datatable_search_type').selectpicker();
         };
