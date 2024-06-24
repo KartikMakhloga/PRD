@@ -154,6 +154,8 @@ class JawanModel extends CI_Model
         $query = $this->db->get();
         return $query->result();
     }
+    
+ 
 
     public function allocateJawans($jawan_ids, $department_id, $from_date, $to_date,$requestId,$blockId)
     {

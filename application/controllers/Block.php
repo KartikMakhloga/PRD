@@ -59,8 +59,19 @@ class Block extends CI_Controller
         $this->load->model('JawanModel');
         $jawans = $this->JawanModel->getAvailableJawansByBlockId($blockId);
 
+        // Add is_trained data
+        foreach ($jawans as $jawan) {
+            $jawan->is_trained = $this->checkIfJawanIsTrained($jawan->id);
+        }
+
         header("Content-Type: application/json");
         echo json_encode(['data' => $jawans]);
+    }
+
+    private function checkIfJawanIsTrained($jawanId)
+    {
+        $jawan = $this->JawanModel->getJawanById($jawanId);
+        return $jawan->training != 'none';
     }
 
 
@@ -128,6 +139,8 @@ class Block extends CI_Controller
         if ($this->session->userdata('role_name') != 'block') {
             redirect(base_url(), 'refresh');
         }
+
+        $data['skills'] = ["Carpenter", "Electrician", "Plumber", "Mason", "Painter", "Welder", "Fitter", "Turner", "Machinist", "Sheet Metal Worker", "Computer Operator and Programming Assistant", "Draftsman Civil"];
         $data['requests'] = $this->RequestModel->getRequestsByBlockId($this->session->userdata('user_id'));
         $this->load->view("admin/templates/header");
         $this->load->view('block/requests', $data);
@@ -232,23 +245,24 @@ class Block extends CI_Controller
     }
 
 
-    public function allocateAllJawansToDepartment() {
+    public function allocateAllJawansToDepartment()
+    {
         // Load necessary libraries and helpers
         $this->load->library('form_validation');
-    
+
         // Set validation rules
         $this->form_validation->set_rules('jawan_ids[]', 'Jawans', 'required');
         $this->form_validation->set_rules('department_id', 'Department', 'required');
         $this->form_validation->set_rules('from', 'From Date', 'required');
         $this->form_validation->set_rules('to', 'To Date', 'required');
-    
+
         if ($this->form_validation->run() == FALSE) {
             // Validation failed
             $response = array('status' => 'error', 'message' => validation_errors());
             echo json_encode($response);
             return;
         }
-    
+
         // Retrieve POST data
         $jawan_ids = $this->input->post('jawan_ids');
         $department_id = $this->input->post('department_id');
@@ -258,19 +272,19 @@ class Block extends CI_Controller
         $blockId = $this->session->userdata('user_id');
 
 
-    
+
         // Allocate jawans
         $result = $this->JawanModel->allocateJawans($jawan_ids, $department_id, $from_date, $to_date, $requestId, $blockId);
-    
+
         if ($result) {
             $response = array('status' => 'success', 'message' => 'Jawans allocated successfully.');
         } else {
             $response = array('status' => 'error', 'message' => 'Failed to allocate jawans.');
         }
-    
+
         echo json_encode($response);
     }
-    
+
 
 
 
