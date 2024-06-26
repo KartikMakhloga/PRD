@@ -71,6 +71,17 @@ class JawanModel extends CI_Model
         return $query->result();
     }
 
+    public function getJawansByDistrictIdForReport($districtId)
+    {
+        $this->db->select('jawan.*, block.name as block_name');
+        $this->db->from('jawan');
+        $this->db->join('block', 'block.id = jawan.block_id');
+        $this->db->where('block.district_id', $districtId);
+        $this->db->order_by('jawan.name', 'asc');
+        $query = $this->db->get();
+        return $query->result();
+    }
+
     public function getAvailableJawanByBlockId($blockId)
     {
         $this->db->select('jawan.*, block.name as block_name');
@@ -84,13 +95,11 @@ class JawanModel extends CI_Model
 
     }
 
-    public function allocateJawanToDepartment($jawanId, $departmentId)
+    public function allocateJawanToDepartment($jawanId, $requestId)
     {
         if ($this->getJawanById($jawanId)->department_id == null) {
             $this->db->where('id', $jawanId);
-            $this->db->update('jawan', ['department_id' => $departmentId]);
-            $this->db->where('id', $jawanId);
-            $this->db->update('jawan', ['availability' => 1]);
+            $this->db->update('jawan', ['request_id' => $requestId, 'availability' => 1]);
             return true;
         } else {
             return false;
@@ -99,11 +108,9 @@ class JawanModel extends CI_Model
 
     public function deallocateJawanToDepartment($jawanId)
     {
-        if ($this->getJawanById($jawanId)->department_id != null) {
+        if ($this->getJawanById($jawanId)->request_id != null) {
             $this->db->where('id', $jawanId);
-            $this->db->update('jawan', ['department_id' => null]);
-            $this->db->where('id', $jawanId);
-            $this->db->update('jawan', ['availability' => 0]);
+            $this->db->update('jawan', ['department_id' => null, 'availability' => 0, 'request_id' => null, 'from' => null, 'to' => null]);
             return true;
         } else {
             return false;
@@ -154,15 +161,13 @@ class JawanModel extends CI_Model
         $query = $this->db->get();
         return $query->result();
     }
-    
- 
 
-    public function allocateJawans($jawan_ids, $department_id, $from_date, $to_date,$requestId,$blockId)
+
+
+    public function allocateJawans($jawan_ids, $requestId, $blockId)
     {
-        // jawan_ids is an array of jawan ids
-
         $this->db->where_in('id', $jawan_ids);
-        $this->db->update('jawan', ['department_id' => $department_id, 'from' => $from_date, 'to' => $to_date, 'availability' => 1]);
+        $this->db->update('jawan', ['request_id' => $requestId, 'availability' => 1]);
 
         $this->db->where('request_id', $requestId);
         $this->db->where('block_id', $blockId);

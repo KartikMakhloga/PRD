@@ -300,10 +300,10 @@
                         autoHide: false,
                         textAlign: 'left',
                         template: function (row) {
-                            var select = '<select class="form-select form-select-sm department_id" style="width:100px; margin-bottom:5px"  name="department_id">';
-                            select += '<option value="" disabled selected>Deparment</option>';
-                            <?php foreach ($departments as $department) { ?>
-                                select += '<option value="<?= $department->id ?>"><?= $department->name ?></option>';
+                            var select = '<select class="form-select form-select-sm request_id" style="width:100px; margin-bottom:5px"  name="request_id">';
+                            select += '<option value="" disabled selected>Demand</option>';
+                            <?php foreach ($requests as $request) { ?>
+                                select += '<option value="<?= $request->id ?>"><?= $request->demand_number ?></option>';
                             <?php } ?>
                             select += '</select>';
                             var allocateButton = '<button type="button" class="btn btn-primary btn-sm" onclick="allocateJawanToDepartment(this, ' + row.id + ')" style="width:100px">Allocate</button>';
@@ -369,14 +369,15 @@
 
             // allocate Jawan To Department
             window.allocateJawanToDepartment = function (button, jawanId) {
-                var departmentId = $(button).closest('tr').find('.department_id').val();
+                var requestId = $(button).closest('tr').find('.request_id').val();
+                console.log(requestId);
                 $.ajax({
                     url: baseUrl + 'block/allocateJawanToDepartment',
                     type: 'POST',
                     dataType: 'json',
                     data: {
                         jawan_id: jawanId,
-                        department_id: departmentId,
+                        request_id: requestId
                     },
                     success: function (response) {
                         if (response.status === 'success') {

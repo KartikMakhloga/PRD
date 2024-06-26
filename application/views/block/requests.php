@@ -175,55 +175,49 @@
     </div>
 </div>
 
-
-
-
-
-
 <script src="<?= base_url() ?>assets/plugins/global/plugins.bundle.js"></script>
-
 <script>
     "use strict";
 
     function showDetailsModal(requestId) {
-    var baseUrl = "<?php echo base_url(); ?>";
-    var block_id = "<?php echo $this->session->userdata('user_id'); ?>";
+        var baseUrl = "<?php echo base_url(); ?>";
+        var block_id = "<?php echo $this->session->userdata('user_id'); ?>";
 
-    // Fetch data from the server
-    $.ajax({
-        url: baseUrl + 'block/getRequestDetails/' + requestId,
-        type: 'GET',
-        success: function (response) {
-            var data = response.data;
+        // Fetch data from the server
+        $.ajax({
+            url: baseUrl + 'block/getRequestDetails/' + requestId,
+            type: 'GET',
+            success: function (response) {
+                var data = response.data;
 
-            var blockIds = JSON.parse(data.block_ids);
-            var jawansForBlock = blockIds[block_id] || '0';
-            var skilledJawans = typeof data.skilled_jawans === 'string' ? JSON.parse(data.skilled_jawans) : data.skilled_jawans;
-            var approvalStatus = data.approval;
+                var blockIds = JSON.parse(data.block_ids);
+                var jawansForBlock = blockIds[block_id] || '0';
+                var skilledJawans = typeof data.skilled_jawans === 'string' ? JSON.parse(data.skilled_jawans) : data.skilled_jawans;
+                var approvalStatus = data.approval;
 
-            var statusBadge = data.approval == 0 ? '<span class="badge bg-secondary">Pending</span>' : '<span class="badge bg-success">Allocated</span>';
+                var statusBadge = data.approval == 0 ? '<span class="badge bg-secondary">Pending</span>' : '<span class="badge bg-success">Allocated</span>';
 
-            var finalStatusBadge;
-            switch (data.status) {
-                case 'Pending':
-                    finalStatusBadge = '<span class="badge bg-secondary">Pending</span>';
-                    break;
-                case 'Approved':
-                    finalStatusBadge = '<span class="badge bg-warning text-dark">Allocated</span>';
-                    break;
-                case 'Completed':
-                    finalStatusBadge = '<span class="badge bg-success">Completed</span>';
-                    break;
-                case 'Rejected':
-                    finalStatusBadge = '<span class="badge bg-danger">Rejected</span>';
-                    break;
-                default:
-                    finalStatusBadge = '<span class="badge bg-dark">Unknown</span>';
-                    break;
-            }
+                var finalStatusBadge;
+                switch (data.status) {
+                    case 'Pending':
+                        finalStatusBadge = '<span class="badge bg-secondary">Pending</span>';
+                        break;
+                    case 'Approved':
+                        finalStatusBadge = '<span class="badge bg-warning text-dark">Allocated</span>';
+                        break;
+                    case 'Completed':
+                        finalStatusBadge = '<span class="badge bg-success">Completed</span>';
+                        break;
+                    case 'Rejected':
+                        finalStatusBadge = '<span class="badge bg-danger">Rejected</span>';
+                        break;
+                    default:
+                        finalStatusBadge = '<span class="badge bg-dark">Unknown</span>';
+                        break;
+                }
 
-            var detailsHtml =
-                `<p><strong>Demand Number: </strong><span class="badge bg-secondary">${data.demand_number}</span> </p>
+                var detailsHtml =
+                    `<p><strong>Demand Number: </strong><span class="badge bg-secondary">${data.demand_number}</span> </p>
             <p><strong>Department Name: </strong> <span class="badge bg-secondary">${data.department_name || 'Not specified'}</span></p>
             <p><strong>Order ID: </strong><span class="badge bg-secondary">${data.order_id || 'N/A'}</span> </p>
             <p><strong>Status: </strong> ${statusBadge}</p>
@@ -233,82 +227,82 @@
             <p><strong>Total Jawans Requested from your block: </strong> <span class="badge bg-secondary">${jawansForBlock}</span></p>
             <p><strong>Skilled Jawans: </strong><ul>`;
 
-            for (var key in skilledJawans) {
-                if (skilledJawans.hasOwnProperty(key) && skilledJawans[key]) {
-                    detailsHtml += `<li>${key.charAt(0).toUpperCase() + key.slice(1)}: ${skilledJawans[key]}</li>`;
+                for (var key in skilledJawans) {
+                    if (skilledJawans.hasOwnProperty(key) && skilledJawans[key]) {
+                        detailsHtml += `<li>${key.charAt(0).toUpperCase() + key.slice(1)}: ${skilledJawans[key]}</li>`;
+                    }
                 }
-            }
-            detailsHtml += '</ul></p>';
+                detailsHtml += '</ul></p>';
 
-            $('#modalContent').html(detailsHtml);
-            $('#detailsModal').modal('show');
-            // Clear previous buttons, if any
-            $('#allocateButton').remove();
-            $('#allocateSelectedJawans').remove();
+                $('#modalContent').html(detailsHtml);
+                $('#detailsModal').modal('show');
+                // Clear previous buttons, if any
+                $('#allocateButton').remove();
+                $('#allocateSelectedJawans').remove();
 
-            // Add the allocate buttons dynamically based on approval status
-            var footerHtml = '';
-            if (data.status !== 'Rejected') {
-                if (data.approval === '2') {
-                    footerHtml += '<button class="btn btn-primary ml-2" id="allocateButton" disabled>Allocate</button>';
-                } else {
-                    footerHtml += '<button class="btn btn-primary ml-2" id="allocateButton">Allocate</button>';
+                // Add the allocate buttons dynamically based on approval status
+                var footerHtml = '';
+                if (data.status !== 'Rejected') {
+                    if (data.approval === '2') {
+                        footerHtml += '<button class="btn btn-primary ml-2" id="allocateButton" disabled>Allocate</button>';
+                    } else {
+                        footerHtml += '<button class="btn btn-primary ml-2" id="allocateButton">Allocate</button>';
+                    }
+
+                    $('.modal-footer').append(footerHtml);
                 }
 
-                $('.modal-footer').append(footerHtml);
+                $('#allocateButton').on('click', function () {
+                    showJawansModal(data.department_id, data.from_date, data.to_date, requestId);
+                });
+            },
+            error: function (error) {
+                console.log('Error fetching details:', error);
             }
+        });
+    }
 
-            $('#allocateButton').on('click', function () {
-                showJawansModal(data.department_id, data.from_date, data.to_date, requestId);
-            });
-        },
-        error: function (error) {
-            console.log('Error fetching details:', error);
-        }
-    });
-}
+    function showJawansModal(department_id, from_date, to_date, requestId) {
+        var baseUrl = "<?php echo base_url(); ?>";
+        var blockId = "<?php echo $this->session->userdata('user_id'); ?>";
+        $.ajax({
+            url: baseUrl + 'block/getAvailableJawansByBlocks/' + blockId,
+            type: 'GET',
+            success: function (response) {
+                var jawans = response.data;
+                var jawanDetailsHtml = '<div class="container">';
 
-function showJawansModal(department_id, from_date, to_date, requestId) {
-    var baseUrl = "<?php echo base_url(); ?>";
-    var blockId = "<?php echo $this->session->userdata('user_id'); ?>";
-    $.ajax({
-        url: baseUrl + 'block/getAvailableJawansByBlocks/' + blockId,
-        type: 'GET',
-        success: function (response) {
-            var jawans = response.data;
-            var jawanDetailsHtml = '<div class="container">';
+                // Add filters for trained/untrained and skills in a single row with smaller size
+                jawanDetailsHtml += '<div class="row">';
+                jawanDetailsHtml += '<div class="form-group col-sm-6 col-md-3">';
+                jawanDetailsHtml += '<label for="trainingFilter" class="small">Training Status:</label>';
+                jawanDetailsHtml += '<select id="trainingFilter" class="form-control form-control-sm">';
+                jawanDetailsHtml += '<option value="all">All</option>';
+                jawanDetailsHtml += '<option value="trained">Trained</option>';
+                jawanDetailsHtml += '<option value="untrained">Untrained</option>';
+                jawanDetailsHtml += '</select>';
+                jawanDetailsHtml += '</div>';
 
-            // Add filters for trained/untrained and skills in a single row with smaller size
-            jawanDetailsHtml += '<div class="row">';
-            jawanDetailsHtml += '<div class="form-group col-sm-6 col-md-3">';
-            jawanDetailsHtml += '<label for="trainingFilter" class="small">Training Status:</label>';
-            jawanDetailsHtml += '<select id="trainingFilter" class="form-control form-control-sm">';
-            jawanDetailsHtml += '<option value="all">All</option>';
-            jawanDetailsHtml += '<option value="trained">Trained</option>';
-            jawanDetailsHtml += '<option value="untrained">Untrained</option>';
-            jawanDetailsHtml += '</select>';
-            jawanDetailsHtml += '</div>';
+                jawanDetailsHtml += '<div class="form-group col-sm-6 col-md-3">';
+                jawanDetailsHtml += '<label for="skillsFilter" class="small">Skills:</label>';
+                jawanDetailsHtml += '<select id="skillsFilter" class="form-control form-control-sm">';
+                jawanDetailsHtml += '<option value="all">All</option>';
+                <?php foreach ($skills as $skill): ?>
+                    jawanDetailsHtml += `<option value="<?php echo $skill; ?>"><?php echo $skill; ?></option>`;
+                <?php endforeach; ?>
+                jawanDetailsHtml += '</select>';
+                jawanDetailsHtml += '</div>';
+                jawanDetailsHtml += '</div>';
+                jawanDetailsHtml += '<div class="row">';
+                jawanDetailsHtml += '<div class="col-md-12">';
+                jawanDetailsHtml += '<h5 class="text-dark font-weight-bold mt-2 mb-2">Available Jawans</h5>';
+                jawanDetailsHtml += `<span class="text-dark-50 font-weight-bold">${jawans.length} Total Jawans</span>`;
 
-            jawanDetailsHtml += '<div class="form-group col-sm-6 col-md-3">';
-            jawanDetailsHtml += '<label for="skillsFilter" class="small">Skills:</label>';
-            jawanDetailsHtml += '<select id="skillsFilter" class="form-control form-control-sm">';
-            jawanDetailsHtml += '<option value="all">All</option>';
-            <?php foreach ($skills as $skill): ?>
-                jawanDetailsHtml += `<option value="<?php echo $skill; ?>"><?php echo $skill; ?></option>`;
-            <?php endforeach; ?>
-            jawanDetailsHtml += '</select>';
-            jawanDetailsHtml += '</div>';
-            jawanDetailsHtml += '</div>'; // Close row div
-            jawanDetailsHtml += '<div class="row">';
-            jawanDetailsHtml += '<div class="col-md-12">';
-            jawanDetailsHtml += '<h5 class="text-dark font-weight-bold mt-2 mb-2">Available Jawans</h5>';
-            jawanDetailsHtml += `<span class="text-dark-50 font-weight-bold">${jawans.length} Total Jawans</span>`;
-
-            jawanDetailsHtml += '<table class="table table-striped">';
-            jawanDetailsHtml += '<thead><tr><th>Select</th><th>Name</th><th>Availability</th><th>Father Name</th><th>Skill</th><th>Residence Address</th><th>Training</th></tr></thead>';
-            jawanDetailsHtml += '<tbody id="jawansTableBody">';
-            jawans.forEach(jawan => {
-                jawanDetailsHtml += `<tr data-trained="${jawan.training}" data-skills="${jawan.skills}">
+                jawanDetailsHtml += '<table class="table table-striped">';
+                jawanDetailsHtml += '<thead><tr><th>Select</th><th>Name</th><th>Availability</th><th>Father Name</th><th>Skill</th><th>Residence Address</th><th>Training</th></tr></thead>';
+                jawanDetailsHtml += '<tbody id="jawansTableBody">';
+                jawans.forEach(jawan => {
+                    jawanDetailsHtml += `<tr data-trained="${jawan.training}" data-skills="${jawan.skills}">
                 <td><input type="checkbox" class="jawan-checkbox" value="${jawan.id}"></td>
                 <td>${jawan.name}</td>
                 <td>${jawan.availability == 0 ? "Available" : "Unavailable"}</td>
@@ -317,68 +311,66 @@ function showJawansModal(department_id, from_date, to_date, requestId) {
                 <td>${jawan.residential_address}</td>
                 <td>${jawan.training}</td>
             </tr>`;
-            });
-            jawanDetailsHtml += '</tbody></table>';
-            jawanDetailsHtml += '</div></div></div>';
-
-            // Add Allocate button
-            var allocateAllJawans = '<button class="btn btn-primary ml-2" id="allocateSelectedJawans">Allocate Selected Jawans</button>';
-
-            $('#allocateButton').remove();
-            $('.modal-footer').append(allocateAllJawans);
-
-            $('#modalContent').html(jawanDetailsHtml);
-            $('#detailsModal').modal('show');
-
-            // Filter jawans on change of filter
-            $('#trainingFilter, #skillsFilter').on('change', function () {
-                filterJawans();
-            });
-
-            // Allocate button click handler
-            $('#allocateSelectedJawans').on('click', function () {
-                var selectedJawans = [];
-                $('.jawan-checkbox:checked').each(function () {
-                    selectedJawans.push($(this).val());
                 });
-                var departmentId = department_id;
-                if (selectedJawans.length > 0 && departmentId && from_date) {
-                    allocateJawansToDepartment(selectedJawans, departmentId, from_date, to_date, requestId);
-                } else {
-                    alert('Please select jawans.');
-                }
-            });
-        },
-        error: function (error) {
-            console.log('Error fetching jawans:', error);
-        }
-    });
-}
+                jawanDetailsHtml += '</tbody></table>';
+                jawanDetailsHtml += '</div></div></div>';
 
-function filterJawans() {
-    var trainingFilter = $('#trainingFilter').val();
-    var skillsFilter = $('#skillsFilter').val().toLowerCase();
+                // Add Allocate button
+                var allocateAllJawans = '<button class="btn btn-primary ml-2" id="allocateSelectedJawans">Allocate Selected Jawans</button>';
 
-    $('#jawansTableBody tr').each(function () {
-        var trained = $(this).data('trained');
-        var skills = $(this).data('skills').toLowerCase();
+                $('#allocateButton').remove();
+                $('.modal-footer').append(allocateAllJawans);
 
-        var show = true;
+                $('#modalContent').html(jawanDetailsHtml);
+                $('#detailsModal').modal('show');
 
-        if (trainingFilter !== 'all') {
-            show = (trainingFilter === 'trained' && trained !== 'none') || (trainingFilter === 'untrained' && trained === 'none');
-        }
+                // Filter jawans on change of filter
+                $('#trainingFilter, #skillsFilter').on('change', function () {
+                    filterJawans();
+                });
 
-        if (skillsFilter !== 'all') {
-            show = show && skills.includes(skillsFilter);
-        }
+                // Allocate button click handler
+                $('#allocateSelectedJawans').on('click', function () {
+                    var selectedJawans = [];
+                    $('.jawan-checkbox:checked').each(function () {
+                        selectedJawans.push($(this).val());
+                    });
+                    var departmentId = department_id;
+                    if (selectedJawans.length > 0 && departmentId && from_date) {
+                        console.log('Selected jawans:', selectedJawans);
+                        allocateJawansToDepartment(selectedJawans, departmentId, from_date, to_date, requestId);
+                    } else {
+                        alert('Please select jawans.');
+                    }
+                });
+            },
+            error: function (error) {
+                console.log('Error fetching jawans:', error);
+            }
+        });
+    }
 
-        $(this).toggle(show);
-    });
-}
+    function filterJawans() {
+        var trainingFilter = $('#trainingFilter').val();
+        var skillsFilter = $('#skillsFilter').val().toLowerCase();
 
+        $('#jawansTableBody tr').each(function () {
+            var trained = $(this).data('trained');
+            var skills = $(this).data('skills').toLowerCase();
 
+            var show = true;
 
+            if (trainingFilter !== 'all') {
+                show = (trainingFilter === 'trained' && trained !== 'none') || (trainingFilter === 'untrained' && trained === 'none');
+            }
+
+            if (skillsFilter !== 'all') {
+                show = show && skills.includes(skillsFilter);
+            }
+
+            $(this).toggle(show);
+        });
+    }
 
     function allocateJawansToDepartment(jawanIds, departmentId, from_date, to_date, requestId) {
         var baseUrl = "<?php echo base_url(); ?>";
@@ -388,9 +380,6 @@ function filterJawans() {
             dataType: 'json',
             data: {
                 jawan_ids: jawanIds,
-                department_id: departmentId,
-                from: from_date,
-                to: to_date,
                 requestId: requestId
             },
             success: function (response) {
@@ -407,7 +396,6 @@ function filterJawans() {
             }
         });
     }
-
 
     var KTAppsUsersListDatatable = function () {
         // Private functions

@@ -91,6 +91,7 @@ $route['updateJawan/(:num)'] = 'admin/updateJawan/$1';
 $route['district/jawanDetails'] = 'district/jawanDetails';
 $route['district/getJawansByBlock/(:num)'] = 'district/getJawansByBlock/$1';
 $route['district/getJawansByDistrict/(:num)'] = 'district/getJawansByDistrict/$1';
+$route['district/getJawansByDistrictIdForReport/(:num)'] = 'district/getJawansByDistrictIdForReport/$1';
 $route['district/BlockJawans/(:num)'] = 'district/BlockJawans/$1';
 $route['district/requestJawans'] = 'district/requestJawans';
 $route['district/allRequest'] = 'district/allRequest';
@@ -105,6 +106,7 @@ $route['district/updateRequest/(:num)'] = 'district/updateRequest/$1';
 $route['district/generateOrderId/(:num)'] = 'district/generateOrderId/$1';
 $route['district/completeOrder/(:num)'] = 'district/completeOrder/$1';
 $route['district/rejectOrder/(:num)'] = 'district/rejectOrder/$1';
+$route['district/report'] = 'district/report';
 
 
 $route['block/jawanDetails'] = 'block/jawanDetails';

@@ -15,6 +15,7 @@ class Admin extends CI_Controller
         $this->load->model('DistrictModel');
         $this->load->model('BlockModel');
         $this->load->model('JawanModel');
+        $this->load->model('DepartmentModel');
         $this->load->helper('form');
 
     }
@@ -379,6 +380,7 @@ class Admin extends CI_Controller
         }
         $blocks = $this->BlockModel->getBlocks();
         $data['blocks'] = $blocks;
+        $data['departments'] = $this->DepartmentModel->getDepartments();
         $this->load->view("admin/templates/header");
         $this->load->view("admin/addJawan", $data);
         $this->load->view("admin/templates/footer");
@@ -418,7 +420,6 @@ class Admin extends CI_Controller
         // $this->form_validation->set_rules('medical', 'Medical', 'required');
         // $this->form_validation->set_rules('police_verification', 'Police Verification', 'required');
         // $this->form_validation->set_rules('caste_certificate', 'Caste Certificate', 'required');
-
 
 
         // Handling form submission
@@ -531,9 +532,9 @@ class Admin extends CI_Controller
 
 
             $availability = $this->input->post('availability') == '0' ? 0 : 1;
-            $department_id = $this->input->post('department_id') || null;
-            $from_date = $this->input->post('from_date') || null;
-            $to_date = $this->input->post('to_date') || null;
+            $department_id = $this->input->post('department_id') == '0' ? null : $this->input->post('department_id');
+            $from_date = $this->input->post('from_date') == '0000-00-00' ? null : $this->input->post('from_date');
+            $to_date = $this->input->post('to_date') == '0000-00-00' ? null : $this->input->post('to_date');
 
             $data = [
                 'block_id' => $this->input->post('block_id'),
@@ -565,8 +566,8 @@ class Admin extends CI_Controller
                 'dob' => $this->input->post('dob'),
                 'availability' => $availability,
                 'department_id' => $department_id,
-                'from_date' => $from_date,
-                'to_date' => $to_date
+                'from' => $from_date,
+                'to' => $to_date
             ];
 
             $this->JawanModel->createJawan($data);
@@ -597,8 +598,10 @@ class Admin extends CI_Controller
         }
         $jawan = $this->JawanModel->getJawanById($id);
         $blocks = $this->BlockModel->getBlocks();
+        $departments = $this->DepartmentModel->getDepartments();
         $data['jawan'] = $jawan;
         $data['blocks'] = $blocks;
+        $data['departments'] = $departments;
         $this->load->view("admin/templates/header");
         $this->load->view("admin/editJawan", $data);
         $this->load->view("admin/templates/footer");

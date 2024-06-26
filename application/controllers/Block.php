@@ -84,7 +84,8 @@ class Block extends CI_Controller
         $jawans = $this->JawanModel->getJawansByBlockId($this->session->userdata('user_id'));
         $data['jawans'] = $jawans;
         $data['availableJawanCount'] = $this->JawanModel->getAvailableJawanByBlockId($this->session->userdata('user_id'));
-        $data['departments'] = $this->DepartmentModel->getDepartments();
+        $data['requests'] = $this->RequestModel->getRequestByBlockIdForAllocation($this->session->userdata('user_id'));
+      
 
         $this->load->view("admin/templates/header");
         $this->load->view('block/viewJawanBlock', $data);
@@ -99,11 +100,11 @@ class Block extends CI_Controller
             return;
         }
         $jawanId = $this->input->post('jawan_id');
-        $departmentId = $this->input->post('department_id');
-        if ($departmentId == null) {
-            echo json_encode(['status' => 'error', 'message' => 'Please select a department to allocate jawan.']);
+        $requestId = $this->input->post('request_id');
+        if ($requestId == null) {
+            echo json_encode(['status' => 'error', 'message' => 'Please select a Demand Number to allocate jawan.']);
         } else {
-            $result = $this->JawanModel->allocateJawanToDepartment($jawanId, $departmentId);
+            $result = $this->JawanModel->allocateJawanToDepartment($jawanId, $requestId);
             if ($result) {
                 echo json_encode(['status' => 'success', 'message' => 'Jawan allocated to department successfully.']);
             } else {
@@ -252,9 +253,6 @@ class Block extends CI_Controller
 
         // Set validation rules
         $this->form_validation->set_rules('jawan_ids[]', 'Jawans', 'required');
-        $this->form_validation->set_rules('department_id', 'Department', 'required');
-        $this->form_validation->set_rules('from', 'From Date', 'required');
-        $this->form_validation->set_rules('to', 'To Date', 'required');
 
         if ($this->form_validation->run() == FALSE) {
             // Validation failed
@@ -265,16 +263,12 @@ class Block extends CI_Controller
 
         // Retrieve POST data
         $jawan_ids = $this->input->post('jawan_ids');
-        $department_id = $this->input->post('department_id');
-        $from_date = $this->input->post('from');
-        $to_date = $this->input->post('to');
         $requestId = $this->input->post('requestId');
         $blockId = $this->session->userdata('user_id');
 
 
-
         // Allocate jawans
-        $result = $this->JawanModel->allocateJawans($jawan_ids, $department_id, $from_date, $to_date, $requestId, $blockId);
+        $result = $this->JawanModel->allocateJawans($jawan_ids, $requestId, $blockId);
 
         if ($result) {
             $response = array('status' => 'success', 'message' => 'Jawans allocated successfully.');

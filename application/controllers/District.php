@@ -20,13 +20,13 @@ class District extends CI_Controller
 
     }
 
-    private function notifyBlocks($blocksJawans)
-    {
-        // foreach ($blocksJawans as $blockId => $numberOfJawans) {
-        //     // Send notification to the block
-        //     $this->NotificationModel->sendToBlock($blockId, "You are required to provide $numberOfJawans jawans.");
-        // }
-    }
+    // private function notifyBlocks($blocksJawans)
+    // {
+    // foreach ($blocksJawans as $blockId => $numberOfJawans) {
+    //     // Send notification to the block
+    //     $this->NotificationModel->sendToBlock($blockId, "You are required to provide $numberOfJawans jawans.");
+    // }
+    // }
     private function isLoggedIn()
     {
         return $this->session->userdata('user_id') !== null;
@@ -457,19 +457,43 @@ class District extends CI_Controller
         }
     }
 
-    public function rejectOrder($id) {
+    public function rejectOrder($id)
+    {
         $this->checkLogin();
         if ($this->session->userdata('role_name') != 'district') {
             echo json_encode(['status' => 'error', 'message' => 'Unauthorized access']);
             return;
         }
 
-        $result = $this->RequestModel->updateOrderStatus($id, 'Rejected');
+        $result = $this->RequestModel->updateOrderStatusReject($id, 'Rejected');
         if ($result) {
             echo json_encode(['success' => true]);
         } else {
             echo json_encode(['success' => false]);
         }
+    }
+
+    public function report()
+    {
+        $this->checkLogin();
+        if ($this->session->userdata('role_name') != 'district') {
+            redirect(base_url(), 'refresh');
+        }
+
+        $data['jawans'] = $this->JawanModel->getJawansByDistrictIdForReport($this->session->userdata('user_id'));
+        $this->load->view("admin/templates/header");
+        $this->load->view("district/report", $data);
+        $this->load->view("admin/templates/footer");
+    }
+
+    public function getJawansByDistrictIdForReport($id)
+    {
+        if ($this->session->userdata('role_name') != 'district') {
+            redirect(base_url(), 'refresh');
+        }
+        $jawans = $this->JawanModel->getJawansByDistrictIdForReport($id);
+        header("Content-Type: application/json");
+        echo json_encode(['data' => $jawans]);
     }
 
 }

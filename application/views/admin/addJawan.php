@@ -460,21 +460,11 @@
                                     </div>
                                     <div class="col-lg-4">
                                         <label>Department:</label>
-                                        <select class="form-control form-control-solid" name="department">
-                                            <option value="">Select Department</option>
-                                            <option value="Carpenter">Carpenter</option>
-                                            <option value="Electrician">Electrician</option>
-                                            <option value="Plumber">Plumber</option>
-                                            <option value="Mason">Mason</option>
-                                            <option value="Painter">Painter</option>
-                                            <option value="Welder">Welder</option>
-                                            <option value="Fitter">Fitter</option>
-                                            <option value="Turner">Turner</option>
-                                            <option value="Machinist">Machinist</option>
-                                            <option value="Sheet Metal Worker">Sheet Metal Worker</option>
-                                            <option value="Computer Operator and Programming Assistant">Computer
-                                                Operator and Programming Assistant</option>
-                                            <option value="Draftsman (Civil)">Draftsman (Civil)</option>
+                                        <select class="form-control form-control-solid" name="department_id">
+                                            <option value="" selected disabled>Select Department</option>
+                                            <?php foreach ($departments as $department) { ?>
+                                                <option value="<?= $department->id ?>"><?= $department->name ?></option>
+                                            <?php } ?>
                                         </select>
                                         <span class="form-text text-muted">Please Select Department</span>
                                     </div>
@@ -546,7 +536,7 @@
     document.addEventListener("DOMContentLoaded", function () {
         // Function to enable or disable inputs
         function toggleInputs(isDisabled) {
-            document.querySelector('[name="department"]').disabled = isDisabled;
+            document.querySelector('[name="department_id"]').disabled = isDisabled;
             document.querySelector('[name="from_date"]').disabled = isDisabled;
             document.querySelector('[name="to_date"]').disabled = isDisabled;
         }

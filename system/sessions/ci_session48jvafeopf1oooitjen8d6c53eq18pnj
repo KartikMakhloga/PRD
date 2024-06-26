@@ -1,0 +1,5 @@
+__ci_last_regenerate|i:1719392258;user_id|s:1:"0";role_name|s:5:"admin";name|s:6:"Kartik";email|s:5:"admin";error|s:172:"<p>The Residential Address field is required.</p>
+<p>The Permanent Address field is required.</p>
+<p>The Village field is required.</p>
+<p>The Vital field is required.</p>
+";__ci_vars|a:1:{s:5:"error";s:3:"old";}

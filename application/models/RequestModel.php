@@ -225,6 +225,24 @@ class RequestModel extends CI_Model
         return $filteredResults;
     }
 
+    public function getRequestByBlockIdForAllocation($blockId)
+    {
+        // Define the blockId as a string to match the JSON key format
+        $blockIdKey = '"' . $blockId . '"'; 
+    
+        // get all requests where blockId is a key in the blockIds JSON object
+        $this->db->select('requests.*');
+        $this->db->from('requests');
+        // Check for existence of blockId as a key in the JSON object
+        $this->db->where("JSON_CONTAINS_PATH(block_ids, 'one', '$.$blockIdKey')", NULL, FALSE);
+        $query = $this->db->get();
+
+    
+        return $query->result();
+    }
+    
+
+
     public function getRequestsWithSkilledJawans($blockId)
     {
         $blockIdKey = '"' . $blockId . '"';
@@ -338,10 +356,16 @@ class RequestModel extends CI_Model
         return false;
     }
 
-    public function updateOrderStatus($id, $status, $orderId)
+    public function updateOrderStatusReject($id, $status)
     {
         $this->db->where('id', $id);
-        return $this->db->update('requests', ['status' => $status, 'order_id' => $orderId]);
+        return $this->db->update('requests', ['status' => $status]);
+    }
+
+    public function updateOrderStatus($id, $status, $order_id)
+    {
+        $this->db->where('id', $id);
+        return $this->db->update('requests', ['status' => $status, 'order_id' => $order_id]);
     }
 
 
