@@ -85,7 +85,7 @@ class Block extends CI_Controller
         $data['jawans'] = $jawans;
         $data['availableJawanCount'] = $this->JawanModel->getAvailableJawanByBlockId($this->session->userdata('user_id'));
         $data['requests'] = $this->RequestModel->getRequestByBlockIdForAllocation($this->session->userdata('user_id'));
-      
+        $data['departments'] = $this->DepartmentModel->getDepartments($this->session->userdata('user_id'));
 
         $this->load->view("admin/templates/header");
         $this->load->view('block/viewJawanBlock', $data);

@@ -481,6 +481,8 @@ class District extends CI_Controller
         }
 
         $data['jawans'] = $this->JawanModel->getJawansByDistrictIdForReport($this->session->userdata('user_id'));
+        $data['blocks'] = $this->BlockModel->getBlockByDistrictId($this->session->userdata('user_id'));
+        $data['requests'] = $this->RequestModel->getRequestByDistrictIdForReport($this->session->userdata('user_id'));
         $this->load->view("admin/templates/header");
         $this->load->view("district/report", $data);
         $this->load->view("admin/templates/footer");
@@ -491,7 +493,10 @@ class District extends CI_Controller
         if ($this->session->userdata('role_name') != 'district') {
             redirect(base_url(), 'refresh');
         }
-        $jawans = $this->JawanModel->getJawansByDistrictIdForReport($id);
+
+        $blockId = $this->input->get('blockId');
+        $demand_number = $this->input->get('demand_number');
+        $jawans = $this->JawanModel->getJawansByDistrictIdForReport($id, $blockId, $demand_number);
         header("Content-Type: application/json");
         echo json_encode(['data' => $jawans]);
     }

@@ -343,9 +343,7 @@
 
             // Handle search event
             $('#kt_subheader_search_form').on('keyup', function () {
-                console.log($(this).val());
                 datatable.setDataSourceParam('generalSearch', $(this).val());
-                console.log(datatable.getDataSourceParam('generalSearch'));
                 datatable.load();
             });
 

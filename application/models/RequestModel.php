@@ -368,5 +368,14 @@ class RequestModel extends CI_Model
         return $this->db->update('requests', ['status' => $status, 'order_id' => $order_id]);
     }
 
+    public function getRequestByDistrictIdForReport($districtId)
+    {
+        $this->db->select('requests.*');
+        $this->db->from('requests');
+        $this->db->where('requests.district_id', $districtId);
+        $query = $this->db->get();
+        return $query->result();
+    }
+
 
 }

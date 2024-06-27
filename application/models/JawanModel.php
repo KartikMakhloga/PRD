@@ -71,12 +71,22 @@ class JawanModel extends CI_Model
         return $query->result();
     }
 
-    public function getJawansByDistrictIdForReport($districtId)
+    public function getJawansByDistrictIdForReport($districtId, $blockId = null, $demand_number = null)
     {
         $this->db->select('jawan.*, block.name as block_name');
         $this->db->from('jawan');
         $this->db->join('block', 'block.id = jawan.block_id');
         $this->db->where('block.district_id', $districtId);
+
+        if (!empty($blockId) && $blockId != 0) {
+            $this->db->where('block.id', $blockId);
+        }
+
+        if (!empty($demand_number) && $demand_number != 0) {
+            $this->db->join('requests', 'requests.id = jawan.request_id');
+            $this->db->where('requests.demand_number', $demand_number);
+        }
+
         $this->db->order_by('jawan.name', 'asc');
         $query = $this->db->get();
         return $query->result();
@@ -135,9 +145,8 @@ class JawanModel extends CI_Model
         }
 
         if ($department !== null && $department !== '') {
-
-            $this->db->where('department_id', $department);
-
+            $this->db->join('requests', 'requests.id = jawan.request_id');
+            $this->db->where('requests.department_id', $department);
         }
 
         if ($generalSearch) {
@@ -172,7 +181,6 @@ class JawanModel extends CI_Model
         $this->db->where('request_id', $requestId);
         $this->db->where('block_id', $blockId);
         $this->db->update('skilled_jawan_request', ['approval' => '2']);
-
         return true;
 
     }

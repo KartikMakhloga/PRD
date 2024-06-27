@@ -14,18 +14,16 @@
                 <!--end::Separator-->
                 <!--begin::Search Form-->
                 <div class="d-flex align-items-center" id="kt_subheader_search">
-                    <span class="text-dark-50 font-weight-bold" id="kt_subheader_total"><?= count($jawans) ?>
-                        Total</span>
-                    <form class="ml-5">
-                        <div class="input-group input-group-sm input-group-solid" style="max-width: 175px">
+                    <span class="text-dark-50 font-weight-bold" id="kt_subheader_total"><?= count($jawans) ?> Total
+                        Jawans</span>
+                    <form class="ml-5 d-flex align-items-center">
+                        <!-- <div class="input-group input-group-sm input-group-solid" style="max-width: 175px">
                             <input type="text" class="form-control" id="kt_subheader_search_form"
                                 placeholder="Search..." />
                             <div class="input-group-append">
                                 <span class="input-group-text">
                                     <span class="svg-icon">
-                                        <!--begin::Svg Icon | path:<?= base_url() ?>assets/media/svg/icons/General/Search.svg-->
-                                        <svg xmlns="http://www.w3.org/2000/svg"
-                                            xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px"
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px"
                                             viewBox="0 0 24 24" version="1.1">
                                             <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                                                 <rect x="0" y="0" width="24" height="24" />
@@ -37,14 +35,32 @@
                                                     fill="#000000" fill-rule="nonzero" />
                                             </g>
                                         </svg>
-                                        <!--end::Svg Icon-->
                                     </span>
-                                    <!--<i class="flaticon2-search-1 icon-sm"></i>-->
                                 </span>
                             </div>
+                        </div> -->
+                        <div class="input-group input-group-sm input-group-solid ml-2" style="max-width: 175px">
+                            <select class="form-control" id="kt_subheader_search_block">
+                                <option value="" disabled selected>Select Block</option>
+                                <option value="0">All</option>
+                                <?php foreach ($blocks as $block): ?>
+                                    <option value="<?= $block->id ?>"><?= $block->name ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="input-group input-group-sm input-group-solid ml-2" style="max-width: 175px">
+                            <select class="form-control" id="kt_subheader_search_demand_number">
+                                <option value="" disabled selected>Select Demand Number</option>
+                                <option value="0">All</option>
+                                <?php foreach ($requests as $demand_number): ?>
+                                    <option value="<?= $demand_number->demand_number ?>">
+                                        <?= $demand_number->demand_number ?></option>
+                                <?php endforeach; ?>
+                            </select>
                         </div>
                     </form>
                 </div>
+
                 <!--end::Search Form-->
             </div>
             <!--end::Details-->
@@ -118,6 +134,14 @@
                         read: {
                             url: baseUrl + 'district/getJawansByDistrictIdForReport/' + districtId,
                             method: 'GET',
+                            params: {
+                                blockId: function () {
+                                    return $('#kt_subheader_search_block').val();
+                                },
+                                demand_number: function () {
+                                    return $('#kt_subheader_search_demand_number').val();
+                                },
+                            },
                         },
                     },
                     pageSize: 5, // display 5 records per page
@@ -157,6 +181,32 @@
                     {
                         field: 'block_name',
                         title: 'Block'
+                    },
+                    {
+                        field: 'availability',
+                        title: 'Availability',
+                        width: 100,
+                        template: function (row) {
+                            var status = {
+                                0: {
+                                    'title': 'Available',
+                                    'class': ' label-light-success'
+                                },
+                                1: {
+                                    'title': 'Unavailable',
+                                    'class': ' label-light-danger'
+                                },
+                                2: {
+                                    'title': 'Pending',
+                                    'class': ' label-light-primary'
+                                },
+                                3: {
+                                    'title': 'On Hold',
+                                    'class': ' label-light-info'
+                                },
+                            };
+                            return '<span class="label font-weight-bold label-lg' + status[row.availability].class + ' label-inline">' + status[row.availability].title + '</span>';
+                        },
                     },
                     {
                         field: 'name',
@@ -234,12 +284,15 @@
                 ],
             });
 
-            $('#kt_datatable_search_status').on('change', function () {
-                datatable.search($(this).val().toLowerCase(), 'Status');
+            $('#kt_subheader_search_block').on('change', function () {
+                datatable.setDataSourceParam('blockId', $(this).val());
+                datatable.load();
             });
 
-            $('#kt_datatable_search_type').on('change', function () {
-                datatable.search($(this).val().toLowerCase(), 'Type');
+            $('#kt_subheader_search_demand_number').on('change', function () {
+                datatable.setDataSourceParam('demand_number', $(this).val());
+                console.log($(this).val());
+                datatable.load();
             });
 
             $('#kt_datatable_search_status, #kt_datatable_search_type').selectpicker();
